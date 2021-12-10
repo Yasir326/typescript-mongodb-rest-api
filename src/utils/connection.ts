@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import config from "config";
-import logger from "./logger";
+import { logger } from "./logger";
 
-const connection = async () => {
+export const connection = async () => {
   const dbUri = config.get<string>("dbUri");
   try {
     await mongoose.connect(dbUri);
@@ -12,5 +12,3 @@ const connection = async () => {
     process.exit(1);
   }
 };
-
-export default connection;
