@@ -3,12 +3,14 @@ import bcrypt from "bcrypt";
 import config from "config";
 import { string } from "zod";
 
-export interface UserSchema extends Document {
+export interface UserDocument extends Document {
   email: string;
   name: string;
   password: string;
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<Boolean>;
+  
 }
 
 const userSchema = new Schema(
@@ -23,7 +25,7 @@ const userSchema = new Schema(
 );
 
 userSchema.pre("save", async function (next) {
-  let user = this as UserSchema;
+  const user = this as UserDocument;
 
   if (!user.isModified("password")) {
     return next();
@@ -36,6 +38,12 @@ userSchema.pre("save", async function (next) {
 
   return next();
 });
+
+userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  const user = this as UserDocument;
+
+  return bcrypt.compare(candidatePassword, user.password).catch((e) => false);
+};
 
 const UserModel = model("User", userSchema);
 
