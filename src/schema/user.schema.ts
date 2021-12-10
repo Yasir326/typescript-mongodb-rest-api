@@ -1,7 +1,7 @@
 import { object, string, TypeOf } from "zod";
 
 const passwordRegExp = new RegExp(
-  "^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,}$"
+  "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
 );
 
 export const createUserSchema = object({
@@ -15,15 +15,15 @@ export const createUserSchema = object({
       passwordRegExp,
       "Password must be minimum eight characters, at least one letter, one number and one special character"
     ),
-    confirmPassword: string({
+    passwordConfirmation: string({
       required_error: "Password confirmation is required",
     }),
     email: string({
       required_error: "Email is required",
     }).email("Please enter a valid email"),
-  }).refine((data) => data.password === data.confirmPassword, {
+  }).refine((data) => data.password === data.passwordConfirmation, {
     message: "Passwords do not match",
-    path: ["confirmPassword"],
+    path: ["passwordConfirmation"],
   }),
 });
 
