@@ -1,4 +1,8 @@
-import { object, string } from "zod";
+import { object, string, TypeOf } from "zod";
+
+const passwordRegExp = new RegExp(
+  "^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,}$"
+);
 
 export const createUserSchema = object({
   body: object({
@@ -8,19 +12,22 @@ export const createUserSchema = object({
     password: string({
       required_error: "Password is required",
     }).regex(
-      new RegExp(
-        "^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,}$"
-      ),
+      passwordRegExp,
       "Password must be minimum eight characters, at least one letter, one number and one special character"
     ),
     confirmPassword: string({
-        required_error: "Password confirmation is required",
+      required_error: "Password confirmation is required",
     }),
     email: string({
-        required_error: "Email is required"
-    }).email("Please enter a valid email")
+      required_error: "Email is required",
+    }).email("Please enter a valid email"),
   }).refine((data) => data.password === data.confirmPassword, {
-      message: "Passwords do not match",
-      path: ['confirmPassword']
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
   }),
 });
+
+export type CreateUserInput = Omit<
+  TypeOf<typeof createUserSchema>,
+  "body.confirmPassword"
+>;
